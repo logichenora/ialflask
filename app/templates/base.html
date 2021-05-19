@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title>Welcome</title>
+    {% endif %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <style>
+        .edit{
+            color: #11557C;
+            cursor: pointer;
+        }
+        .delete{
+            color: #9C1A1C;
+            cursor: pointer;
+        }
+
+        #chartdiv {
+            width: 100%;
+            height: 500px;
+        }
+    </style>
+
+    <!-- Resources -->
+    <script src="https://cdn.amcharts.com/lib/4/core.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js"></script>
+
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        am4core.ready(function() {
+
+        // Themes begin
+        am4core.useTheme(am4themes_animated);
+        // Themes end
+
+        var chart = am4core.create("chartdiv", am4charts.PieChart3D);
+        chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+        chart.data = [
+          {
+            regione: "Abruzzo",
+            dosi: 645719
+          },
+          {
+            regione: "Basilicata",
+            dosi: 275283
+          },
+          {
+            regione: "Calabria",
+            dosi: 831266
+          },
+          {
+            regione: "Campania",
+            litres: 2642583
+          },
+          {
+            regione: "Emilia-Romagna",
+            dosi: 2212555
+          },
+          {
+            regione: "Friuli-Venezia Giulia",
+            dosi: 593575
+          },
+          {
+            regione: "Lazio",
+            dosi: 2776728
+          },
+          {
+            regione: "Liguria",
+            dosi: 820331
+          },
+          {
+            regione: "Liguria",
+            dosi: 820331
+          },
+          {
+            regione: "Marche",
+            dosi: 759276
+          },
+          {
+            regione: "Molise",
+            dosi: 159741
+          },
+          {
+            regione: "Bolzano+Trento",
+            dosi: 510935
+          },
+          {
+            regione: "Piemonte",
+            dosi: 2131991
+          },
+          {
+            regione: "Puglia",
+            dosi: 1953731
+          },
+          {
+            regione: "Sardegna",
+            dosi: 708460
+          },
+          {
+            regione: "Sicilia",
+            dosi: 2063000
+          },
+          {
+            regione: "Toscana",
+            dosi: 1771093
+          },
+          {
+            regione: "Umbria",
+            dosi: 427762
+          },
+          {
+            regione: "Valle d'Aosta",
+            dosi: 62297
+          },
+          {
+            regione: "Veneto",
+            dosi: 2384455
+          }
+        ];
+
+        chart.innerRadius = am4core.percent(40);
+        chart.depth = 120;
+
+        chart.legend = new am4charts.Legend();
+
+        var series = chart.series.push(new am4charts.PieSeries3D());
+        series.dataFields.value = "dosi";
+        series.dataFields.depthValue = "dosi";
+        series.dataFields.category = "regione";
+        series.slices.template.cornerRadius = 5;
+        series.colors.step = 3;
+
+        }); // end am4core.ready()
+    </script>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">IAL Project</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+           {% if not current_user.is_anonymous %}
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Attività
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{{ url_for('region') }}">Gestione Regioni</a></li>
+                    <li><a class="dropdown-item" href="#">Gestione Dati</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#">Gestione Utenti</a></li>
+                  </ul>
+                </li>
+          {% endif %}
+      </ul>
+      <ul class="d-flex navbar-nav">
+        <li class="nav-item dropstart">
+          {% if current_user.is_anonymous %}
+            <a class="nav-link active" aria-current="page" href="{{ url_for('login') }}">Login</a>
+          {% else %}
+            <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Profilo</a>
+            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                <li><a class="nav-link active" aria-current="page" href="{{ url_for('backoffice') }}">Backoffice</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="nav-link active" aria-current="page" href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<div>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+</div>
+        {% block content %}{% endblock %}
+<script>
+  google.charts.load('current', {packages: ['corechart']});
+  //google.charts.setOnLoadCallback(drawChart);
+</script>
+</body>
+</html>

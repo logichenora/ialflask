@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="d-grid gap-2 col-8 mx-auto text-center">
+        <h1>Regioni</h1>
+    </div>
+    <div class="d-grid gap-2 col-6 mx-auto ">
+        <button type="submit" id="region_add" class="btn btn-primary">Aggiungi Regione</button>
+        <form id="region_form" style="display: none">
+            <input type="hidden" id="regione_id" name="regione_id">
+          <div class="mb-3">
+            <label for="regione" class="form-label">Regione</label>
+            <input name="regione" type="text" class="form-control" id="regione" aria-describedby="regioneHelp">
+            <div id="regioneHelp" class="form-text">Inserire il nome della regione in Inglese con la prima lettera maiuscola.</div>
+          </div>
+          <div class="mb-3">
+            <label for="color" class="form-label">Colore</label>
+            <select name="colore" class="form-select" id="color">
+                <option value="white">Bianca</option>
+                <option value="yellow">Gialla</option>
+                <option value="orange">Arancione</option>
+                <option value="red">Rossa</option>
+            </select>
+          </div>
+          <button type="submit" id="region_submit" class="btn btn-primary">Aggiungi Regione</button>
+        </form>
+    </div>
+
+    <div class="d-grid gap-2 col-6 mx-auto ">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Regione</th>
+          <th scope="col">Colore</th>
+          <th scope="col">Azione</th>
+        </tr>
+      </thead>
+      <tbody id="regions">
+
+      </tbody>
+    </table>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    $("#region_add").on("click", ()=>{
+        if($("#region_form").is(":visible")){
+            $("#region_form").hide()
+            $("#region_add").text("Aggiungi Regione")
+            $("#regione_id").val("")
+            $("#regione").val("")
+            $("#color").val("")
+        }else{
+            $("#region_form").show()
+            $("#region_add").text("Chiudi Form")
+            $("#region_submit").text("Aggiungi")
+        }
+    })
+
+     $("#region_submit").on("click", (e)=>{
+        e.preventDefault()
+        if(!$("#regione_id").val()){
+            //add
+            $.post("/api/region",{name: $("#regione").val(), color: $("#color").val()},(data)=>{
+                $("#regions").empty()
+                fillTable(data)
+            })
+        }else{
+            //edit
+              $.ajax({url:"/api/region/"+$("#regione_id").val(), data:{name: $("#regione").val(), color: $("#color").val()}, type: 'PUT', success: (data)=>{
+                $("#regions").empty()
+                fillTable(data)
+                }})
+                }
+     })
+
+    $.get("/api/region", (data, status)=>{
+        fillTable(data)
+    })
+
+function fillTable(data){
+    data[0].regions.forEach((it, id)=>{
+            $("#regions").append('<tr><td>'+it.id+'</td><td><span class="edit" id="'+it.id+'">'+it.name+'</span>'+'</td><td>'+it.color+'</td><td><span class="delete" id="'+it.id+'" >Rimuovi</span></td></tr>')
+            $(".edit").on("click", (e)=>{
+              editRegion(e.target.id)
+            })
+            $(".delete").on("click", (e)=>{
+              deleteRegion(e.target.id)
+            })
+        })
+}
+
+function editRegion(id){
+    $.get("/api/region",{id: id}, (data, status)=>{
+        $("#region_form").show()
+        $("#region_add").text("Chiudi Form")
+        $("#region_submit").text("Modifica")
+        region = data[0].regions[0]
+        $("#regione_id").val(region.id)
+        $("#regione").val(region.name)
+        $("#color").val(region.color)
+    })
+}
+
+function deleteRegion(id){
+        $.ajax({url:"/api/region/"+id, type: 'DELETE', success: (data)=>{
+        $("#regions").empty()
+        fillTable(data)
+        }})
+}
+});
+</script>
+{% endblock %}
